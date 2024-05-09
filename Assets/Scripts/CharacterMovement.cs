@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterMovement : MonoBehaviour
+public abstract class CharacterMovement : MonoBehaviour
 {
     public float speed;
     public float mouseSensitivity;
@@ -21,22 +21,12 @@ public class CharacterMovement : MonoBehaviour
     void Update()
     {
         //Movement. WASD and arrows to move
-        if(Input.GetAxisRaw("Horizontal") != 0)
-        {
-            dirToMove.x = Input.GetAxisRaw("Horizontal");
-        }
-        else
-        {
-            dirToMove.x = 0;
-        }
-        if(Input.GetAxisRaw("Vertical") != 0)
-        {
-            dirToMove.z = Input.GetAxisRaw("Vertical");
-        }
-        else
-        {
-            dirToMove.z = 0;
-        }
+  
+        dirToMove.x = Input.GetAxisRaw("Horizontal");
+        goingRight(dirToMove.x);
+
+        dirToMove.z = Input.GetAxisRaw("Vertical");
+        goingUp(dirToMove.z);
 
         //Adjust dir from local space to global space because Move() uses global
         dirToMove = transform.TransformDirection(dirToMove);
@@ -59,4 +49,8 @@ public class CharacterMovement : MonoBehaviour
             transform.Rotate(0,amountToRot * mouseSensitivity * Time.deltaTime,0);
         }
     }
+
+    public abstract void goingRight(float dir);
+
+    public abstract void goingUp(float dir);
 }
