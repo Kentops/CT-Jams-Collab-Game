@@ -13,6 +13,7 @@ public class ShinxPlayer : CharacterMovement
     {
         if(dir != 0 && myAnim.GetBool("Moving Up") == true)
         {
+            //Flip for strafe animation
             if(dir > 0)
             {
                 mySprite.flipX = true;

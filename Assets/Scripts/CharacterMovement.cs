@@ -38,7 +38,7 @@ public abstract class CharacterMovement : MonoBehaviour
         if (Input.GetMouseButton(1))
         {
             int amountToRot = 0;
-            if(Input.mousePosition.x > Screen.width * 0.6667f)
+            if(Input.mousePosition.x > Screen.width * 0.667f)
             {
                 amountToRot = 40;
             }
