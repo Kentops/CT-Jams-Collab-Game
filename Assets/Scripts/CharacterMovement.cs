@@ -29,15 +29,13 @@ public abstract class CharacterMovement : MonoBehaviour
         goingUp(dirToMove.z);
 
         //Gravity
-        //Checks if the feet of the sprite(height away from transform.position) touch the Ground layer
-        isGrounded = Physics.CheckSphere(transform.position, controller.height/2, LayerMask.NameToLayer("Default"));
-        Debug.DrawLine(transform.position, transform.position - new Vector3(0, controller.height/2, 0));
+        //Checks if the feet of the sprite are touching something
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, controller.height/2 + 0.1f);
 
         //If you are on the ground, add a force to keep you there
         if (isGrounded == false)
         {
             dirToMove.y = -2;
-            Debug.Log("hmm");
         }
         else
         {
@@ -56,11 +54,11 @@ public abstract class CharacterMovement : MonoBehaviour
             int amountToRot = 0;
             if(Input.mousePosition.x > Screen.width * 0.667f)
             {
-                amountToRot = 40;
+                amountToRot = 60;
             }
             else if(Input.mousePosition.x < Screen.width * 0.333f)
             {
-                amountToRot = -40;
+                amountToRot = -60;
             }
             transform.Rotate(0,amountToRot * mouseSensitivity * Time.deltaTime,0);
         }

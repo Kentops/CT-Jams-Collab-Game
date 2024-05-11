@@ -479,7 +479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 048aae2abb5342a46b767ab14f596570, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 7
+  speed: 6
   mouseSensitivity: 1
   myAnim: {fileID: 1739839039}
   mySprite: {fileID: 1739839038}
