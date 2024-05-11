@@ -9,6 +9,7 @@ public abstract class CharacterMovement : MonoBehaviour
 
     private CharacterController controller;
     private Vector3 dirToMove;
+    private bool isGrounded;
 
     // Start is called before the first frame update
     void Start()
@@ -21,12 +22,27 @@ public abstract class CharacterMovement : MonoBehaviour
     void Update()
     {
         //Movement. WASD and arrows to move
-  
         dirToMove.x = Input.GetAxisRaw("Horizontal");
         goingRight(dirToMove.x);
 
         dirToMove.z = Input.GetAxisRaw("Vertical");
         goingUp(dirToMove.z);
+
+        //Gravity
+        //Checks if the feet of the sprite(height away from transform.position) touch the Ground layer
+        isGrounded = Physics.CheckSphere(transform.position, controller.height/2, LayerMask.NameToLayer("Default"));
+        Debug.DrawLine(transform.position, transform.position - new Vector3(0, controller.height/2, 0));
+
+        //If you are on the ground, add a force to keep you there
+        if (isGrounded == false)
+        {
+            dirToMove.y = -2;
+            Debug.Log("hmm");
+        }
+        else
+        {
+            dirToMove.y = 0;
+        }
 
         //Adjust dir from local space to global space because Move() uses global
         dirToMove = transform.TransformDirection(dirToMove);
