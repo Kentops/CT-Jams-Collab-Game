@@ -1,10 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using Image = UnityEngine.UI.Image;
 
 public class Textbox : MonoBehaviour
 {
@@ -25,6 +24,7 @@ public class Textbox : MonoBehaviour
     private RectTransform myTransform;
     private RectTransform profileTransform;
     private int previousProfile = 0;
+    private Action[] questionOutcomes = new Action[2];
 
     [SerializeField] private Sprite[] profileImages;
 
@@ -57,11 +57,8 @@ public class Textbox : MonoBehaviour
         altImage.enabled = false;
         profileHolder.enabled = false;
 
-        displayText("No profile");
-        displayText("Shinx profile!",1);
-        displayText("Go away Shinx!");
-        displayText("More Shinx!", 1);
-        displayText("Swap!",2);
+        displayText("Do you prefer cats or dogs?", 2);
+        askQuestion("Cats", "Dogs", testFunc, testFunc1);
     }
 
     // Update is called once per frame
@@ -122,40 +119,14 @@ public class Textbox : MonoBehaviour
         previousProfile = person;
     }
 
-    //Broken right now, hard crashes. I assume it's because I have a while loop that can be infinite
-    public bool askQuestion(string option1, string option2, Action function)
+    public void askQuestion(string text1, string text2, Action option1, Action option2)
     {
-        //Remove profile if present
-        if (previousProfile != 0)
-        {
-            displayProfile(0);
-        }
-
-        altText.enabled = true;
-        myText.text = option1;
-        altText.text = option2;
-        bool oneSelected = true;
-        myText.color = Color.yellow;
-        while (Input.GetKeyDown(KeyCode.E) == false)
-        {
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S))
-            {
-                oneSelected = !oneSelected;
-                if (oneSelected == true)
-                {
-                    myText.color = Color.yellow;
-                    altText.color = Color.white;
-                }
-                else
-                {
-                    myText.color = Color.white;
-                    altText.color = Color.yellow;
-                }
-            }
-        }
-        myText.color = Color.white;
-        altText.color = Color.white;
-        return oneSelected;
+        textToDisplay.Add("+");
+        profile.Add(0);
+        questionOutcomes[0] = option1;
+        questionOutcomes[1] = option2;
+        string[] temp = { text1, text2 };
+        StartCoroutine("poseQuestion", temp);
     }
 
     IEnumerator writeText(string message)
@@ -166,7 +137,7 @@ public class Textbox : MonoBehaviour
         {
             yield return new WaitForSeconds(0.2f);
         }
-
+        
         //Give extra time to display profiles
         if (previousProfile != profile[0])
         {
@@ -205,6 +176,100 @@ public class Textbox : MonoBehaviour
                     myImage.enabled = false;
                 });
         }
+    }
+
+    IEnumerator poseQuestion(string[] texts)
+    {
+        //Pop open textbox if needed + wait for my turn
+        if (myImage.enabled == false)
+        {
+            myImage.enabled = true;
+            myTransform.LeanMove(regularPos, 0.8f);
+            Camera.main.transform.LeanRotateX(22.9f, 0.8f);
+            playerMove.canMove = false;
+        }
+
+        while (textToDisplay[0] != "+")
+        {
+            yield return new WaitForSeconds(0.2f);
+        }
+        myText.text = "";
+
+        //Remove profile if present
+        if (previousProfile != 0)
+        {
+            displayProfile(0);
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        altText.enabled = true;
+        myText.text = texts[0];
+        altText.text = texts[1];
+        bool oneSelected = true;
+        myText.color = Color.yellow;
+        //Select with E
+        while (Input.GetKeyDown(KeyCode.E) == false)
+        {
+            //Change selection
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S)
+                || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                oneSelected = !oneSelected;
+                if (oneSelected == true)
+                {
+                    myText.color = Color.yellow;
+                    altText.color = Color.white;
+                }
+                else
+                {
+                    myText.color = Color.white;
+                    altText.color = Color.yellow;
+                }
+            }
+            yield return null;
+        }
+
+        if (oneSelected)
+        {
+            questionOutcomes[0]();
+        }
+        else
+        {
+            questionOutcomes[1]();
+        }
+        //Little flashy sequence to hide the fact the next text takes 0.8 seconds to display
+        for (int i = 0; i<2; i++)
+        {
+            if (oneSelected)
+            {
+                myText.color = Color.white;
+                yield return new WaitForSeconds(0.15f);
+                myText.color = Color.yellow;
+            }
+            else
+            {
+                altText.color = Color.white;
+                yield return new WaitForSeconds(0.15f);
+                altText.color = Color.yellow;
+            }
+            yield return new WaitForSeconds(0.15f);
+        }
+        myText.color = Color.white;
+        altText.color = Color.white;
+        altText.enabled = false;
+        myText.text = "";
+        textToDisplay.RemoveAt(0);
+        profile.RemoveAt(0);
+
+    }
+
+    void testFunc()
+    {
+        displayText("I agree!", 2);
+    }
+    void testFunc1()
+    {
+        displayText("I respectfully disagree", 2);
     }
 
 }
