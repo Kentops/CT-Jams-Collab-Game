@@ -6,6 +6,7 @@ public class GameMaster : MonoBehaviour
 {
     public GameObject player;
     public float mouseSensitivity = 1;
+    public Textbox textbox;
 
     // Start is called before the first frame update
     void Awake()

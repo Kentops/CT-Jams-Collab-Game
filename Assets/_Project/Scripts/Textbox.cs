@@ -16,14 +16,14 @@ public class Textbox : MonoBehaviour
     private Vector3 profileShowPos;
     private TextMeshProUGUI myText;
     private TextMeshProUGUI altText;
-    private List<string> textToDisplay;
-    private List<int> profile;
+    private string textToDisplay;
+    private int currentProfile;
     private float camDefault;
     private GameMaster master;
     private CharacterMovement playerMove;
     private RectTransform myTransform;
     private RectTransform profileTransform;
-    private int previousProfile = 0;
+    private int previousProfile = -1;
     private Action[] questionOutcomes = new Action[2];
 
     [SerializeField] private Sprite[] profileImages;
@@ -42,8 +42,6 @@ public class Textbox : MonoBehaviour
         myTransform = GetComponent<RectTransform>();
         profileTransform = altImage.GetComponent<RectTransform>();
 
-        textToDisplay = new List<string>();
-        profile = new List<int>();
         regularPos = new Vector3(0, -131.4f, 0);
         withProfilePos = new Vector3(71.8f, -131.4f, 0);
         profileShowPos = new Vector3(-189.8f, -131.4f, 0);
@@ -56,9 +54,6 @@ public class Textbox : MonoBehaviour
         altText.text = "";
         altImage.enabled = false;
         profileHolder.enabled = false;
-
-        displayText("Do you prefer cats or dogs?", 2);
-        askQuestion("Cats", "Dogs", testFunc, testFunc1);
     }
 
     // Update is called once per frame
@@ -70,18 +65,26 @@ public class Textbox : MonoBehaviour
         }
     }
 
-    public void displayText(string text, int person = 0)
+    public float displayText(string text, int person = 0, Action funcToCall = null)
     {
+        float talkTime = text.Length * 0.1f + 1;
         if(myImage.enabled == false)
         {
             myImage.enabled = true;
             myTransform.LeanMove(regularPos, 0.8f);
             Camera.main.transform.LeanRotateX(22.9f, 0.8f);
             playerMove.canMove = false;
+            talkTime += 0.8f;
         }
-        textToDisplay.Add(text);
-        profile.Add(person);
+        if(previousProfile != person)
+        {
+            talkTime += 0.6f;
+        }
+        questionOutcomes[0] = funcToCall;
+        textToDisplay=text;
+        currentProfile = person;
         StartCoroutine("writeText", text);
+        return talkTime;
     }
 
     private void displayProfile(int person)
@@ -121,27 +124,35 @@ public class Textbox : MonoBehaviour
 
     public void askQuestion(string text1, string text2, Action option1, Action option2)
     {
-        textToDisplay.Add("+");
-        profile.Add(0);
+        textToDisplay="+";
+        currentProfile = 0;
         questionOutcomes[0] = option1;
         questionOutcomes[1] = option2;
         string[] temp = { text1, text2 };
         StartCoroutine("poseQuestion", temp);
     }
 
+    public float putAway()
+    {
+        StartCoroutine("putBoxAway");
+        if(currentProfile != 0)
+        {
+            return 1.3f;
+        }
+        return 0.8f;
+    }
+
     IEnumerator writeText(string message)
     {
-        //Wait for previous messages to be done + initial wait
-        yield return new WaitForSeconds(0.8f);
-        while(message != textToDisplay[0])
+        //Wait for textbox to appear
+        if (previousProfile == -1)
         {
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.8f);
         }
-        
         //Give extra time to display profiles
-        if (previousProfile != profile[0])
+        if (previousProfile != currentProfile)
         {
-            displayProfile(profile[0]);
+            displayProfile(currentProfile);
             yield return new WaitForSeconds(0.5f);
         }
 
@@ -150,31 +161,7 @@ public class Textbox : MonoBehaviour
         for (int i = 0; i < message.Length; i++)
         {
             myText.text += message[i];
-            yield return new WaitForSeconds(0.1f);
-        }
-        yield return new WaitForSeconds(1 + 0.1f * message.Length); //Give time to read
-        textToDisplay.RemoveAt(0);
-        profile.RemoveAt(0);
-        
-        //Put the box away
-        if(textToDisplay.Count == 0)
-        {
-            playerMove.canMove = true;
-
-            if (altImage.enabled == true)
-            {
-                //Get rid of profile first
-                displayProfile(0);
-                yield return new WaitForSeconds(0.5f);
-            }
-            Camera.main.transform.LeanRotateX(camDefault, 0.8f);
-            transform.LeanMove(transform.parent.position + new Vector3(0, -275, 0), 0.8f)
-                .setOnComplete(() =>
-                {
-                    //Anonymous function (I don't need to make a separate function)
-                    myText.text = "";
-                    myImage.enabled = false;
-                });
+            yield return new WaitForSeconds(0.05f);
         }
     }
 
@@ -188,12 +175,6 @@ public class Textbox : MonoBehaviour
             Camera.main.transform.LeanRotateX(22.9f, 0.8f);
             playerMove.canMove = false;
         }
-
-        while (textToDisplay[0] != "+")
-        {
-            yield return new WaitForSeconds(0.2f);
-        }
-        myText.text = "";
 
         //Remove profile if present
         if (previousProfile != 0)
@@ -229,15 +210,7 @@ public class Textbox : MonoBehaviour
             yield return null;
         }
 
-        if (oneSelected)
-        {
-            questionOutcomes[0]();
-        }
-        else
-        {
-            questionOutcomes[1]();
-        }
-        //Little flashy sequence to hide the fact the next text takes 0.8 seconds to display
+        //Little flashy sequence
         for (int i = 0; i<2; i++)
         {
             if (oneSelected)
@@ -254,22 +227,42 @@ public class Textbox : MonoBehaviour
             }
             yield return new WaitForSeconds(0.15f);
         }
+
+        if (oneSelected)
+        {
+            questionOutcomes[0]();
+        }
+        else
+        {
+            questionOutcomes[1]();
+        }
         myText.color = Color.white;
         altText.color = Color.white;
         altText.enabled = false;
         myText.text = "";
-        textToDisplay.RemoveAt(0);
-        profile.RemoveAt(0);
+        questionOutcomes[0] = null;
+        questionOutcomes[1] = null;
 
     }
 
-    void testFunc()
+    IEnumerator putBoxAway()
     {
-        displayText("I agree!", 2);
-    }
-    void testFunc1()
-    {
-        displayText("I respectfully disagree", 2);
-    }
+        playerMove.canMove = true;
 
+        if (altImage.enabled == true)
+        {
+            //Get rid of profile first
+            displayProfile(0);
+            yield return new WaitForSeconds(0.5f);
+        }
+        Camera.main.transform.LeanRotateX(camDefault, 0.8f);
+        transform.LeanMove(transform.parent.position + new Vector3(0, -275, 0), 0.8f)
+            .setOnComplete(() =>
+            {
+                //Anonymous function (I don't need to make a separate function)
+                myText.text = "";
+                myImage.enabled = false;
+                previousProfile = -1;
+            });
+    }
 }
