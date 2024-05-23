@@ -56,15 +56,6 @@ public class Textbox : MonoBehaviour
         profileHolder.enabled = false;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            displayText("Howdy there!" + UnityEngine.Random.Range(0,100),UnityEngine.Random.Range(0,3));
-        }
-    }
-
     public float displayText(string text, int person = 0, Action funcToCall = null)
     {
         float talkTime = text.Length * 0.1f + 1;
@@ -247,8 +238,6 @@ public class Textbox : MonoBehaviour
 
     IEnumerator putBoxAway()
     {
-        playerMove.canMove = true;
-
         if (altImage.enabled == true)
         {
             //Get rid of profile first
@@ -263,6 +252,7 @@ public class Textbox : MonoBehaviour
                 myText.text = "";
                 myImage.enabled = false;
                 previousProfile = -1;
+                playerMove.canMove = true; //Needs to be last so you don't pause or something
             });
     }
 }
