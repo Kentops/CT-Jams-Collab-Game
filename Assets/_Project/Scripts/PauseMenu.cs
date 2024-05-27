@@ -26,6 +26,17 @@ public class PauseMenu : MonoBehaviour
             StopAllCoroutines();
             StartCoroutine(togglePause());
         }
+        //Scroll through menu options
+        else if(PauseMenuButtons.selectedButton != 1 && 
+            Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            PauseMenuButtons.selectedButton--;
+        }
+        else if(PauseMenuButtons.selectedButton != 2 && //Change 2 to be the last button number
+            Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            PauseMenuButtons.selectedButton++;
+        }
     }
 
     IEnumerator togglePause()
