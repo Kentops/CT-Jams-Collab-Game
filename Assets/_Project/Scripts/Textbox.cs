@@ -14,9 +14,9 @@ public class Textbox : MonoBehaviour
     private Vector3 withProfilePos;
     private Vector3 profileHidePos;
     private Vector3 profileShowPos;
-    private TextMeshProUGUI myText;
-    private TextMeshProUGUI altText;
-    private string textToDisplay;
+        //experiment
+    private TextMeshProUGUI[] allTexts; 
+
     private int currentProfile;
     private float camDefault;
     private GameMaster master;
@@ -24,16 +24,21 @@ public class Textbox : MonoBehaviour
     private RectTransform myTransform;
     private RectTransform profileTransform;
     private int previousProfile = -1;
-    private Action[] questionOutcomes = new Action[2];
+    private Action questionOutcome = null;
 
     [SerializeField] private Sprite[] profileImages;
-
+    public int numOfTextBoxes;
 
     // Start is called before the first frame update
     void Start()
     {
-        myText = transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-        altText = transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+        allTexts = new TextMeshProUGUI[numOfTextBoxes];
+        for(int i=0;i<numOfTextBoxes;i++)
+        {
+            allTexts[i] = transform.GetChild(i).GetComponent<TextMeshProUGUI>();
+            allTexts[i].text = "";
+        }
+
         myImage = GetComponent<Image>();
         altImage = transform.parent.GetChild(1).GetComponent<Image>(); //The profile box
         profileHolder = altImage.transform.GetChild(0).GetComponent<Image>();
@@ -50,15 +55,21 @@ public class Textbox : MonoBehaviour
         camDefault = Camera.main.transform.rotation.eulerAngles.x;
 
         transform.position = transform.parent.position + new Vector3(0, -275, 0);
-        myText.text = "";
-        altText.text = "";
         altImage.enabled = false;
         profileHolder.enabled = false;
     }
 
-    public float displayText(string text, int person = 0, Action funcToCall = null)
+    public float displayText(int person, params string[] text)
     {
-        float talkTime = text.Length * 0.1f + 1;
+        
+        //makes talk time be 1 second longer than 1/10th a second per character
+        float talkTime = 0;
+        foreach (string line in text){
+            talkTime = line.Length * 0.075f +talkTime;
+        }
+        talkTime ++;
+
+
         if(myImage.enabled == false)
         {
             myImage.enabled = true;
@@ -71,8 +82,7 @@ public class Textbox : MonoBehaviour
         {
             talkTime += 0.6f;
         }
-        questionOutcomes[0] = funcToCall;
-        textToDisplay=text;
+        
         currentProfile = person;
         StartCoroutine("writeText", text);
         return talkTime;
@@ -113,14 +123,11 @@ public class Textbox : MonoBehaviour
         previousProfile = person;
     }
 
-    public void askQuestion(string text1, string text2, Action option1, Action option2)
+    public void askQuestion(Action outcome, params string[] text)
     {
-        textToDisplay="+";
         currentProfile = 0;
-        questionOutcomes[0] = option1;
-        questionOutcomes[1] = option2;
-        string[] temp = { text1, text2 };
-        StartCoroutine("poseQuestion", temp);
+        questionOutcome= outcome;
+        StartCoroutine("poseQuestion", text);
     }
 
     public float putAway()
@@ -133,8 +140,12 @@ public class Textbox : MonoBehaviour
         return 0.8f;
     }
 
-    IEnumerator writeText(string message)
+    IEnumerator writeText(params string[] message)
     {
+        //clears stuff
+        for(int i =0; i< allTexts.Length;i++){allTexts[i].text ="";allTexts[i].color = Color.white;}
+
+
         //Wait for textbox to appear
         if (previousProfile == -1)
         {
@@ -147,17 +158,31 @@ public class Textbox : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
-        //My time to shine!
-        myText.text = "";
-        for (int i = 0; i < message.Length; i++)
+        allTexts = new TextMeshProUGUI[message.Length];
+        //my time to cry! ~chouch   
+        for(int i=0;i<message.Length;i++)
         {
-            myText.text += message[i];
-            yield return new WaitForSeconds(0.05f);
+            //writing text on the elements on screen
+            allTexts[i] = transform.GetChild(i).GetComponent<TextMeshProUGUI>();
+            //My time to shine!
+            allTexts[i].text = "";
+            for (int j = 0; j < message[i].Length; j++)
+            {
+                allTexts[i].text += message[i][j];
+                yield return new WaitForSeconds(0.05f);
+            }
         }
+    
+
     }
 
-    IEnumerator poseQuestion(string[] texts)
+    IEnumerator poseQuestion(params string[] texts)
     {
+        
+        //clears stuff
+        for(int i =0; i< allTexts.Length;i++){allTexts[i].text ="";allTexts[i].color = Color.white;}
+        
+        
         //Pop open textbox if needed + wait for my turn
         if (myImage.enabled == false)
         {
@@ -174,70 +199,72 @@ public class Textbox : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
-        altText.enabled = true;
-        myText.text = texts[0];
-        altText.text = texts[1];
-        bool oneSelected = true;
-        myText.color = Color.yellow;
+        allTexts = new TextMeshProUGUI[texts.Length];
+        for(int i=0;i<texts.Length;i++)
+        {
+            allTexts[i] = transform.GetChild(i).GetComponent<TextMeshProUGUI>();
+            allTexts[i].text = texts[i];
+            allTexts[i].enabled = true;
+        }
+        int answerSelected = 0;
+        allTexts[0].color = Color.yellow;
         //Select with E
         while (Input.GetKeyDown(KeyCode.E) == false)
         {
             //Change selection
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S)
-                || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow))
+                //upward
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
             {
-                oneSelected = !oneSelected;
-                if (oneSelected == true)
+                if (answerSelected == 0)
                 {
-                    myText.color = Color.yellow;
-                    altText.color = Color.white;
+                    answerSelected = allTexts.Length -1;
+                    allTexts[0].color = Color.white;
                 }
                 else
                 {
-                    myText.color = Color.white;
-                    altText.color = Color.yellow;
+                    allTexts[answerSelected].color = Color.white;
+                    answerSelected--;
                 }
             }
+                //downward
+            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                if (answerSelected == allTexts.Length -1)
+                {
+                    allTexts[answerSelected].color = Color.white;
+                    answerSelected = 0;
+                }
+                else
+                {
+                    allTexts[answerSelected].color = Color.white;
+                    answerSelected++;
+                }
+            }
+            allTexts[answerSelected].color = Color.yellow;
             yield return null;
         }
 
         //Little flashy sequence
         for (int i = 0; i<2; i++)
         {
-            if (oneSelected)
-            {
-                myText.color = Color.white;
-                yield return new WaitForSeconds(0.15f);
-                myText.color = Color.yellow;
-            }
-            else
-            {
-                altText.color = Color.white;
-                yield return new WaitForSeconds(0.15f);
-                altText.color = Color.yellow;
-            }
+            allTexts[answerSelected].color = Color.white;
+            yield return new WaitForSeconds(0.15f);
+            allTexts[answerSelected].color = Color.yellow;
             yield return new WaitForSeconds(0.15f);
         }
-
-        if (oneSelected)
-        {
-            questionOutcomes[0]();
-        }
-        else
-        {
-            questionOutcomes[1]();
-        }
-        myText.color = Color.white;
-        altText.color = Color.white;
-        altText.enabled = false;
-        myText.text = "";
-        questionOutcomes[0] = null;
-        questionOutcomes[1] = null;
+        //action repeated based on your response
+        for(int i=0;i<=answerSelected;i++){questionOutcome();}
+        
+        
+        questionOutcome = null;
 
     }
 
     IEnumerator putBoxAway()
     {
+        //clears stuff
+        for(int i =0; i< allTexts.Length;i++){allTexts[i].text ="";allTexts[i].color = Color.white;}
+
         if (altImage.enabled == true)
         {
             //Get rid of profile first
@@ -249,7 +276,6 @@ public class Textbox : MonoBehaviour
             .setOnComplete(() =>
             {
                 //Anonymous function (I don't need to make a separate function)
-                myText.text = "";
                 myImage.enabled = false;
                 previousProfile = -1;
                 playerMove.canMove = true; //Needs to be last so you don't pause or something
