@@ -19,7 +19,7 @@ public class PauseMenu : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q) && player.canMove)
+        if (Input.GetKeyDown(KeyCode.Q) && (player.canMove || menu.activeSelf == true))
         {
             //canMove is checked so you don't pause during a conversation
             menu.SetActive(true);

@@ -20,7 +20,7 @@ public class SaveData : MonoBehaviour
     //This is a class to store all variables that will be saved
     public Dictionary<string, int> intStates = new Dictionary<string, int>()
     {
-        
+        {"Gold",0 }
     };
 
     public void saveGame()
@@ -33,8 +33,11 @@ public class SaveData : MonoBehaviour
             content.Add(amount.Key + pairSeparator + amount.Value + itemSeparator);
         }
         content.Add(typeSeparator);
+
+        //Transform x,y,z,scene
         Transform player = gameMaster.player.transform;
-        content.Add("" + player.position.x + "," + player.position.y + "," + player.position.z);
+        content.Add("" + player.position.x + "," + player.position.y + "," + player.position.z + ",");
+        content.Add(gameMaster.sceneName);
         string saveString = string.Join("", content);
         File.WriteAllText(Application.dataPath + "/save.txt", "" + saveString);
     }
@@ -48,16 +51,21 @@ public class SaveData : MonoBehaviour
         for(int j = 0; j < items.Length-1; j++)
         {
             string[] pair = items[j].Split(pairSeparator);
+            if (!intStates.ContainsKey(pair[0]))
+            {
                 intStates.Add(pair[0], int.Parse(pair[1]));
+            }
         }
         //Load correct scene
-
+        string[] values = types[1].Split(",");
+        Debug.Log(values.ToString());
+        gameMaster.loadScene(values[3]);
         //Set Player position
         gameMaster.reload(); //Get correct information in gameMaster
-        string[] values = types[1].Split(",");
+        gameMaster.player.GetComponent<CharacterMovement>().canMove = false; //Needed to teleport
         gameMaster.player.transform.position = new Vector3(float.Parse(values[0]),
             float.Parse(values[1]), float.Parse(values[2]));
-        Debug.Log(gameMaster.player.transform.position);
+        StartCoroutine("loadDelay");
     }
 
     private void Update()
@@ -70,6 +78,14 @@ public class SaveData : MonoBehaviour
         {
             loadGame();
         }
+    }
+
+    private IEnumerator loadDelay()
+    {
+        yield return new WaitForSeconds(0.1f); //Can be replaced if needed
+
+        //The delay is needed to allow teleport
+        gameMaster.player.GetComponent<CharacterMovement>().canMove = true;
     }
 
 

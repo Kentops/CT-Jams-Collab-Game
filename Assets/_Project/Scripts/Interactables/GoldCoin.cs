@@ -15,10 +15,6 @@ public class GoldCoin : Interactable
 
     public override IEnumerator action()
     {
-        if (!gameMaster.mySaveData.intStates.ContainsKey("Gold"))
-        {
-            gameMaster.mySaveData.intStates.Add("Gold", 0);
-        }
         gameMaster.mySaveData.intStates["Gold"] += 1;
         GetComponent<SpriteRenderer>().enabled = false;
         //Play a sound or something, maybe pull up a wallet

@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using Scene = UnityEngine.SceneManagement.Scene;
 
 public class GameMaster : MonoBehaviour
 {
@@ -9,6 +12,7 @@ public class GameMaster : MonoBehaviour
     public Textbox textbox;
     public SaveData mySaveData;
     public float mouseSensitivity = 1;
+    public string sceneName = "SampleScene";
 
     // Start is called before the first frame update
     void Awake()
@@ -30,5 +34,11 @@ public class GameMaster : MonoBehaviour
     public void reload()
     {
         Awake();
+    }
+
+    public void loadScene(string sceneName)
+    {
+        this.sceneName = sceneName;
+        SceneManager.LoadScene(sceneName);
     }
 }
