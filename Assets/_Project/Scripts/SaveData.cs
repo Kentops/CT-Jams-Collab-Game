@@ -58,8 +58,7 @@ public class SaveData : MonoBehaviour
         }
         //Load correct scene
         string[] values = types[1].Split(",");
-        Debug.Log(values.ToString());
-        gameMaster.loadScene(values[3]);
+        gameMaster.StartCoroutine("loadScene",(values[3]));
         //Set Player position
         gameMaster.reload(); //Get correct information in gameMaster
         gameMaster.player.GetComponent<CharacterMovement>().canMove = false; //Needed to teleport
@@ -77,6 +76,10 @@ public class SaveData : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
             loadGame();
+        }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            gameMaster.StartCoroutine("loadScene","TestSecondScene");
         }
     }
 

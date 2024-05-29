@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Scene = UnityEngine.SceneManagement.Scene;
 
 public class GameMaster : MonoBehaviour
@@ -14,15 +16,35 @@ public class GameMaster : MonoBehaviour
     public float mouseSensitivity = 1;
     public string sceneName = "SampleScene";
 
+    public static GameObject instance = null;
+
+    private GameObject myCanvas;
+    [SerializeField] private Image loadingImage;
+
     // Start is called before the first frame update
     void Awake()
     {
+        //Singleton (essentially)
+        if (instance == null)
+        {
+            instance = gameObject;
+            //The game master will be present in every scene
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         //Awake goes before start iirc
         player = GameObject.FindGameObjectWithTag("Player");
         textbox = GameObject.FindGameObjectWithTag("Textbox").GetComponent<Textbox>();
         mySaveData = GetComponent<SaveData>();
-        //The game master will be present in every scene
-        DontDestroyOnLoad(this.gameObject);
+        myCanvas = transform.GetChild(0).gameObject;
+        myCanvas.SetActive(false);
+        loadingImage.fillAmount = 0;
+
+
     }
 
     // Update is called once per frame
@@ -36,9 +58,30 @@ public class GameMaster : MonoBehaviour
         Awake();
     }
 
-    public void loadScene(string sceneName)
+    public IEnumerator loadScene(string sceneName)
     {
         this.sceneName = sceneName;
-        SceneManager.LoadScene(sceneName);
+        var scene = SceneManager.LoadSceneAsync(sceneName);
+
+        myCanvas.SetActive(true);
+        loadingImage.fillAmount = 0;
+        yield return new WaitForSeconds(0.5f);
+
+        scene.allowSceneActivation = false;
+        //Do-while loops check if they should repeat at the end of each iteration, rather than the start.
+        while(!scene.isDone)
+        {
+            yield return new WaitForSeconds(1f);
+            loadingImage.fillAmount = scene.progress;
+            if(scene.progress > 0.9f)
+            {
+                scene.allowSceneActivation = true;
+            }
+        }
+
+        myCanvas.SetActive(false);
+
+
+
     }
 }
