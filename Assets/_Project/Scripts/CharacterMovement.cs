@@ -13,9 +13,21 @@ public abstract class CharacterMovement : MonoBehaviour
     private bool isGrounded;
     private GameMaster master;
 
+    private static GameObject playerInstance = null;
+
     // Start is called before the first frame update
     void Start()
     {
+        //Singleton - There can only ever be one player object
+        if(playerInstance == null)
+        {
+            playerInstance = gameObject;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         dirToMove = Vector3.zero;
         controller = GetComponent<CharacterController>();
         master = GameObject.FindGameObjectWithTag("Game Master").GetComponent<GameMaster>();

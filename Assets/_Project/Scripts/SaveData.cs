@@ -64,7 +64,7 @@ public class SaveData : MonoBehaviour
         gameMaster.player.GetComponent<CharacterMovement>().canMove = false; //Needed to teleport
         gameMaster.player.transform.position = new Vector3(float.Parse(values[0]),
             float.Parse(values[1]), float.Parse(values[2]));
-        StartCoroutine("loadDelay");
+        gameMaster.player.GetComponent<CharacterMovement>().canMove = true;
     }
 
     private void Update()
@@ -81,14 +81,6 @@ public class SaveData : MonoBehaviour
         {
             gameMaster.StartCoroutine("loadScene","TestSecondScene");
         }
-    }
-
-    private IEnumerator loadDelay()
-    {
-        yield return new WaitForSeconds(0.1f); //Can be replaced if needed
-
-        //The delay is needed to allow teleport
-        gameMaster.player.GetComponent<CharacterMovement>().canMove = true;
     }
 
 

@@ -38,6 +38,7 @@ public class GameMaster : MonoBehaviour
 
         //Awake goes before start iirc
         player = GameObject.FindGameObjectWithTag("Player");
+        DontDestroyOnLoad(player);
         textbox = GameObject.FindGameObjectWithTag("Textbox").GetComponent<Textbox>();
         mySaveData = GetComponent<SaveData>();
         myCanvas = transform.GetChild(0).gameObject;

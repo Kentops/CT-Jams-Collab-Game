@@ -42,7 +42,7 @@ public class Textbox : MonoBehaviour
         myImage = GetComponent<Image>();
         altImage = transform.parent.GetChild(1).GetComponent<Image>(); //The profile box
         profileHolder = altImage.transform.GetChild(0).GetComponent<Image>();
-        master = GameObject.FindGameObjectWithTag("Game Master").GetComponent<GameMaster>();
+        master = GameMaster.instance.GetComponent<GameMaster>();
         playerMove = master.player.GetComponent<CharacterMovement>();
         myTransform = GetComponent<RectTransform>();
         profileTransform = altImage.GetComponent<RectTransform>();

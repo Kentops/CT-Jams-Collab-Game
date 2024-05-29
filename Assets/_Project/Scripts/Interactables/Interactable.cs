@@ -10,7 +10,7 @@ public abstract class Interactable : MonoBehaviour
 
     private void Start()
     {
-        gameMaster = GameObject.FindGameObjectWithTag("Game Master").GetComponent<GameMaster>();
+        gameMaster = GameMaster.instance.GetComponent<GameMaster>();
         textbox = gameMaster.textbox;
     }
     public virtual void playerInteraction()

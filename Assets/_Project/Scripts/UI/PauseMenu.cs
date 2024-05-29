@@ -12,7 +12,7 @@ public class PauseMenu : MonoBehaviour
 
     private void Start()
     {
-        controller = GameObject.FindGameObjectWithTag("Game Master").GetComponent<GameMaster>();
+        controller = GameMaster.instance.GetComponent<GameMaster>();
         player = controller.player.GetComponent<CharacterMovement>();
         menu.SetActive(false);
     }

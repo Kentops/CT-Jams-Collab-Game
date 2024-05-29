@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GoldCoin : Interactable
 {
+    public GameObject uiElement;
     private void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.tag == "Player" && canInteract == true)
@@ -18,6 +19,8 @@ public class GoldCoin : Interactable
         gameMaster.mySaveData.intStates["Gold"] += 1;
         GetComponent<SpriteRenderer>().enabled = false;
         //Play a sound or something, maybe pull up a wallet
+        uiElement.GetComponent<UI_On_Screen>().PutOnScreen();
+
         yield return null; //Make this the sound's duration
         Destroy(gameObject);
     }
