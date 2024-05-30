@@ -19,7 +19,7 @@ public class GoldCoin : Interactable
         gameMaster.mySaveData.intStates["Gold"] += 1;
         GetComponent<SpriteRenderer>().enabled = false;
         //Play a sound or something, maybe pull up a wallet
-        uiElement.GetComponent<UI_On_Screen>().PutOnScreen();
+        gameMaster.itemPopup.PutOnScreen();
 
         yield return null; //Make this the sound's duration
         Destroy(gameObject);

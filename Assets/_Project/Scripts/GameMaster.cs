@@ -13,6 +13,7 @@ public class GameMaster : MonoBehaviour
     public GameObject player;
     public Textbox textbox;
     public SaveData mySaveData;
+    public UI_On_Screen itemPopup;
     public float mouseSensitivity = 1;
     public string sceneName = "SampleScene";
 
@@ -42,6 +43,7 @@ public class GameMaster : MonoBehaviour
         textbox = GameObject.FindGameObjectWithTag("Textbox").GetComponent<Textbox>();
         mySaveData = GetComponent<SaveData>();
         myCanvas = transform.GetChild(0).gameObject;
+        itemPopup = GameObject.FindGameObjectWithTag("Item Popup").GetComponent<UI_On_Screen>();
         myCanvas.SetActive(false);
         loadingImage.fillAmount = 0;
 

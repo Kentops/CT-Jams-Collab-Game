@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Game Master
   - Textbox
+  - Item Popup
   layers:
   - Default
   - TransparentFX

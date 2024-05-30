@@ -29,7 +29,6 @@ public class UI_On_Screen : MonoBehaviour
     private float coefficient;
     
     private Vector3 translationDirection;
-    private Transform T;
 
     // Start is called before the first frame update
     void Start()
@@ -38,7 +37,7 @@ public class UI_On_Screen : MonoBehaviour
         movingState = 0;
         timer = timeToTarget;
 
-        T= this.GetComponent<Transform>();
+        transform.position = startingPoint;
     }
 
     // Update is called once per frame
@@ -63,7 +62,7 @@ public class UI_On_Screen : MonoBehaviour
         if(movingState==2)
         {
             if(interpolation) coefficient = (float)(Mathf.PI/2*Mathf.Abs(Mathf.Sin(timer-timeToTarget)));
-            T.Translate(translationDirection*coefficient*Time.deltaTime);
+            transform.Translate(translationDirection*coefficient*Time.deltaTime);
             timer -= Time.deltaTime;
 
             if(timer<=0)
@@ -97,13 +96,13 @@ public class UI_On_Screen : MonoBehaviour
         if(movingState==5)
         {
             if(interpolation) coefficient = (float)(Mathf.PI/2*(Mathf.Abs(Mathf.Sin(timer-timeToExit))));
-            T.Translate(translationDirection*coefficient*Time.deltaTime);
+            transform.Translate(translationDirection*coefficient*Time.deltaTime);
             timer -= Time.deltaTime;
 
             if(timer<=0)
             {
                 movingState = 0;
-                T.position = startingPoint;
+                transform.position = startingPoint;
                 working = false;
             }
         }
@@ -113,7 +112,7 @@ public class UI_On_Screen : MonoBehaviour
 
     public void PutOnScreen(){
         movingState = 1;
-        T.position = startingPoint;
+        transform.position = startingPoint;
         working = true;
     }
 
@@ -121,7 +120,7 @@ public class UI_On_Screen : MonoBehaviour
     {
         movingState = 1;
         timeAtTarget = timeOnScreen;
-        T.position = startingPoint;
+        transform.position = startingPoint;
         working = true;
     }
 }
